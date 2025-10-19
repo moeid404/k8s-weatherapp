@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
-      - main
+      - master
       - "feature/**"
 
 env:
@@ -15,7 +15,7 @@ jobs:
   deploy-test:
     name: Deploy to Test
     if: github.event.action != 'closed'
-    runs-on: [self-hosted, linux, test]
+    runs-on: [self-hosted, test]
     environment: test
     permissions:
       contents: read
@@ -68,7 +68,7 @@ jobs:
   cleanup-test:
     name: Cleanup Test (on PR close)
     if: github.event.action == 'closed'
-    runs-on: [self-hosted, linux, test]
+    runs-on: [self-hosted, test]
     steps:
       - name: Stop & Remove test container
         env:

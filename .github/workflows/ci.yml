@@ -3,11 +3,11 @@ name: CI
 on:
   push:
     branches:
-      - main
+      - master
       - "feature/**"
   pull_request:
     branches:
-      - main
+      - master
       - "feature/**"
 
 env:
@@ -19,8 +19,9 @@ concurrency:
 
 jobs:
   tests:
-    runs-on: [self-hosted, linux, test]
+    runs-on: [self-hosted, test]
     strategy:
+      max-parallel: 1
       matrix:
         test_type: [unit, integration]
     steps:
@@ -44,7 +45,7 @@ jobs:
 
   build-and-push:
     needs: [tests]
-    runs-on: [self-hosted, linux, test]
+    runs-on: [self-hosted, test]
     permissions:
       contents: read
       packages: write
@@ -69,7 +70,7 @@ jobs:
             images: ${{ env.IMAGE_NAME }}
             tags: |
                 type=sha
-                type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+                type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
                 type=raw,value=pr-${{ github.event.pull_request.number }},enable=${{ github.event_name == 'pull_request' }}
                 type=ref,event=push,enable=${{ startsWith(github.ref, 'refs/heads/feature/') }}
 
