@@ -1,9 +1,9 @@
-name: CD - Prod (main deploy)
+name: CD - Prod (master deploy)
 
 on:
   push:
     branches:
-      - main
+      - master
 
 env:
   IMAGE_NAME: ghcr.io/${{ github.repository }}/weatherapp
