@@ -1,0 +1,60 @@
+name: CD - Prod (main deploy)
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  IMAGE_NAME: ghcr.io/${{ github.repository }}/weatherapp
+
+jobs:
+  deploy-prod:
+    runs-on: [self-hosted, linux, prod]
+    environment: production
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Compute SHORT_SHA
+        id: sha
+        run: echo "short=$(echo '${{ github.sha }}' | cut -c1-7)" >> $GITHUB_OUTPUT
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull by tag and resolve digest
+        id: pull
+        env:
+          IMAGE: ${{ env.IMAGE_NAME }}
+          SHORT_SHA: ${{ steps.sha.outputs.short }}
+        run: |
+          set -e
+          TAG="sha-${SHORT_SHA}"
+          echo "Using tag: $TAG"
+          docker pull "$IMAGE:$TAG"
+          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "$IMAGE:$TAG" | sed "s|^$IMAGE@||")
+          echo "digest=$DIGEST" >> $GITHUB_OUTPUT
+
+      - name: Deploy container (by digest)
+        env:
+          IMAGE: ${{ env.IMAGE_NAME }}
+          DIGEST: ${{ steps.pull.outputs.digest }}
+        run: |
+          set -e
+          docker ps -a --format '{{.Names}}' | grep -q '^weatherapp$' && docker stop weatherapp || true
+          docker ps -a --format '{{.Names}}' | grep -q '^weatherapp$' && docker rm weatherapp || true
+
+          docker run -d --name weatherapp \
+            --env-file /etc/weatherapp/prod.env \
+            -p 3000:3000 \
+            --restart always \
+            "$IMAGE@$DIGEST"
+
+          sleep 2
+          docker ps --filter "name=weatherapp" --format 'table {{.Names}}\t{{.Status}}'
+          curl -fsS http://localhost:3000/healthz || (echo "Prod health check failed" && exit 1)
