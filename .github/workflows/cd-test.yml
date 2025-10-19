@@ -15,7 +15,7 @@ jobs:
   deploy-test:
     name: Deploy to Test
     if: github.event.action != 'closed'
-    runs-on: [self-hosted, test]
+    runs-on: runs-on: self-hosted
     environment: test
     permissions:
       contents: read
@@ -68,7 +68,7 @@ jobs:
   cleanup-test:
     name: Cleanup Test (on PR close)
     if: github.event.action == 'closed'
-    runs-on: [self-hosted, test]
+    runs-on: runs-on: self-hosted
     steps:
       - name: Stop & Remove test container
         env:
