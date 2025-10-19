@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   tests:
-    runs-on: [self-hosted, linux, test]
+    runs-on: [self-hosted, test]
     strategy:
       matrix:
         test_type: [unit, integration]

@@ -15,7 +15,7 @@ jobs:
   deploy-test:
     name: Deploy to Test
     if: github.event.action != 'closed'
-    runs-on: [self-hosted, linux, test]
+    runs-on: [self-hosted, test]
     environment: test
     permissions:
       contents: read

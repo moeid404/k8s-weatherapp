@@ -10,7 +10,7 @@ env:
 
 jobs:
   deploy-prod:
-    runs-on: [self-hosted, linux, prod]
+    runs-on: [self-hosted, prod]
     environment: production
     permissions:
       contents: read
