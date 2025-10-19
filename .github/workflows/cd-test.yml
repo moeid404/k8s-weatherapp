@@ -68,7 +68,7 @@ jobs:
   cleanup-test:
     name: Cleanup Test (on PR close)
     if: github.event.action == 'closed'
-    runs-on: [[self-hosted, test]
+    runs-on: [self-hosted, test]
     steps:
       - name: Stop & Remove test container
         env:

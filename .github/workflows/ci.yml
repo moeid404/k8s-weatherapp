@@ -45,7 +45,7 @@ jobs:
 
   build-and-push:
     needs: [tests]
-    runs-on: [[self-hosted, test]
+    runs-on: [self-hosted, test]
     permissions:
       contents: read
       packages: write
